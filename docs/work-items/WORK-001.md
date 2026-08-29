@@ -8,7 +8,7 @@ WORK-001 owns no frozen requirement IDs directly (substrate/governance Work Orde
 
 | Acceptance criterion | Implementation | Proof |
 |---|---|---|
-| 1. Strict TypeScript/Bun toolchain, deterministic commands | `package.json` (exact-pinned devDependencies, canonical scripts), `tsconfig.json` (strict + `noUncheckedIndexedAccess` + `verbatimModuleSyntax`), `biome.json`, `vitest.config.ts`, committed `bun.lock` | `tests/integration/toolchain-contract.test.ts`; CI `implementation` job (activates via `hashFiles` gate) |
+| 1. Strict TypeScript/Bun toolchain, deterministic commands | `package.json` (exact-pinned devDependencies, canonical scripts), `tsconfig.json` (strict + `noUncheckedIndexedAccess` + `verbatimModuleSyntax`), `biome.json`, `vitest.config.ts`, committed `bun.lock`; CI workflow repaired so the toolchain gate is executable | `tests/integration/toolchain-contract.test.ts`; CI `implementation` job (activates via the repaired toolchain-detection gate) |
 | 2. Module skeleton + public/internal boundary convention | 18 modules under `src/modules/*` with `public.ts` + `domain/ application/ ports/ adapters/ internal/`; `src/integrations/workflowos/`; typed `ModuleDescriptor` in `src/shared/module.ts` | `tests/architecture/module-skeleton.test.ts`; `tests/unit/modules.test.ts` (spec §6 sync) |
 | 3. db, Redis, object-store, clock, crypto, secret-store ports without domain coupling | `src/platform/{db,redis,object-store,clock,crypto,secret-store}/port.ts` (+ `config/port.ts`, `db/migrations/` home); ports are interface-only; domain/application/ports layers are forbidden from importing platform | `tests/architecture/dependency-direction.test.ts`; `tests/discrimination/dependency-rules.discrimination.test.ts` (domain-coupled-to-platform cases) |
 | 4. Architecture/dependency tests rejecting cross-module internal imports and out-of-adapter SDK imports | Rule engine `tests/architecture/lib/dependency-rules.ts` (13 rules incl. `internal-never-cross-module`, `cross-module-public-only`, `provider-sdk-outside-adapter`, undeclared-import fail-closed) + SDK boundary table | `tests/architecture/dependency-direction.test.ts`; `tests/architecture/provider-sdk-boundaries.test.ts`; discrimination proofs in `tests/discrimination/dependency-rules.discrimination.test.ts` |
@@ -23,11 +23,12 @@ WORK-001 owns no frozen requirement IDs directly (substrate/governance Work Orde
   - `src/api/` — transport-only placeholder contract
   - `src/shared/` — module descriptors, canonical error taxonomy, UUIDv7 primitives
   - `spec/development-state/` — WORK-001 marked in-flight (program/frontier), checkpoint outcomes recorded (evidence-only, verdicts pending)
-  - `src/modules/*`, `src/integrations/workflowos` — module skeleton created per acceptance criterion 2 (`IMPLEMENTATION.md` §2 layout)
+  - `.github/workflows/governance.yml` — repaired pre-existing workflow defect: the `implementation` job gate used `hashFiles()` in a job-level `if`, which is not a valid location (job conditions are evaluated by the Actions service, which has no workspace). Every workflow run since PR #1 merged failed at composition with zero jobs (run named by file path instead of workflow name) — the governance gate was silently dead. Replaced with a `toolchain-detection` job whose output feeds `needs.toolchain-detection.outputs.present` — same gate semantics (implementation runs only when `tsconfig.json` + `bun.lock` exist), now valid. Both behaviors (skip without files, activate with files) were empirically validated against GitHub's real workflow parser in a throwaway repo before applying.
   - Toolchain root files directly required by acceptance criterion 1: `package.json` (devDependencies added; scripts unchanged), `tsconfig.json`, `biome.json`, `vitest.config.ts`, `bun.lock` (new)
+  - `src/modules/*`, `src/integrations/workflowos` — module skeleton created per acceptance criterion 2 (`IMPLEMENTATION.md` §2 layout)
   - Tests/evidence directly required by the Work Order: `tests/{unit,architecture,discrimination,integration}/**`, this evidence file
 - Changed files: 141 added/modified, 0 removed — 18 module skeletons ×6 files, 8 platform port/README files, 3 shared primitives, 11 test files, 5 toolchain files, 3 development-state files, 1 evidence file
-- Not touched: frozen architecture (`spec/architecture.md`, `spec/architecture-lock.md`, ADRs), `spec/contracts.md`, all other Work Orders, `scripts/governance-check.py` (verified byte-identical to base), `.github/` (CI contract already encodes the WORK-001 activation gate; no change required)
+- Not touched: frozen architecture (`spec/architecture.md`, `spec/architecture-lock.md`, ADRs), `spec/contracts.md`, all other Work Orders, `scripts/governance-check.py` (verified byte-identical to base)
 
 ## Verification
 
@@ -61,7 +62,7 @@ Recorded in `spec/development-state/checkpoint-state.json` as worker-recorded ou
 - No runtime dependencies exist yet by design: `src/` currently contains ports and skeleton only; adapters (PostgreSQL, Redis, object store, Fastify transport, provider SDKs) arrive with the Work Orders that own them. The SDK boundary table is therefore exercised by synthetic discrimination tests, not by live SDK imports.
 - Architecture tests are deterministic static scans; they do not replace the dynamic boundary tests that later Work Orders must add at real authority boundaries.
 - `spec/work-orders/WORK-001.md` still reads `Status: PENDING` because `spec/work-orders/` is outside this Work Order's declared surfaces; program-state carries the authoritative in-flight status.
-- The CI `implementation` job activates on this PR via the `hashFiles('tsconfig.json','bun.lock')` gate — that activation is itself part of what this PR proves.
+- The pre-existing CI defect is fixed in this PR (see Changed surfaces). Every workflow run between PR #1's merge and this PR failed at workflow composition with zero jobs, so no CI check actually executed against `main` in that window — worth an architect finding for the merged-but-broken window.
 - `bun.lock` was generated with Bun 1.3.4 exactly (the version CI pins); `--frozen-lockfile` verified.
 
 ## PR / merge
