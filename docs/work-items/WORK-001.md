@@ -17,7 +17,7 @@ WORK-001 owns no frozen requirement IDs directly (substrate/governance Work Orde
 ## Implementation
 
 - Base revision: `463e6a677630cdc3cae5914abc01aafdd154c795` (`main`)
-- Implementation revision: head of `work/WORK-001-foundation` at PR open (stable binding identity is the PR number below; final identity is the architect merge commit recorded at post-merge finalization)
+- Implementation revision: `17a3ce0` (branch head; stable binding identity is PR #3 below; final identity is the architect merge commit recorded at post-merge finalization)
 - Changed surfaces:
   - `src/platform/` — ports (config, db, redis, object-store, clock, crypto, secret-store) + migrations home
   - `src/api/` — transport-only placeholder contract
@@ -34,6 +34,7 @@ WORK-001 owns no frozen requirement IDs directly (substrate/governance Work Orde
 
 Commands run with Bun 1.3.4 (the CI-pinned version) on the branch head:
 
+- CI (GitHub Actions, run 33281490675 on `17a3ce0`, `pull_request` event): all three jobs green — `governance` (governance-check.py), `toolchain-detection` (files present → gate open), `implementation` (Bun 1.3.4 setup, `bun install --frozen-lockfile`, typecheck, lint, architecture tests, unit tests, integration tests — every step success). This is the first green workflow run in the repository since the `implementation` job was introduced.
 - Governance check: `python3 scripts/governance-check.py` → `Governance OK: 20 Work Orders, 45 requirements, frontier=[]` (exit 0)
 - Deterministic install: `bun install --frozen-lockfile` → no changes, 53 installs across 102 packages (exit 0)
 - Typecheck: `bun run typecheck` → exit 0 (TypeScript strict + noUncheckedIndexedAccess)
