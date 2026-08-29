@@ -66,7 +66,7 @@ Recorded in `spec/development-state/checkpoint-state.json` as worker-recorded ou
 
 ## PR / merge
 
-- PR number: 2
+- PR number: 3 (https://github.com/pectoraux/Zeck/pull/3)
 - Architect review verdict: pending
 - Merge commit: pending (architect merge authority; worker does not merge its own PR)
 - Post-merge finalization revision: pending
