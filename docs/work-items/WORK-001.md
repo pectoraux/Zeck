@@ -17,7 +17,9 @@ WORK-001 owns no frozen requirement IDs directly (substrate/governance Work Orde
 ## Implementation
 
 - Base revision: `463e6a677630cdc3cae5914abc01aafdd154c795` (`main`)
-- Implementation revision: `17a3ce0` (branch head; stable binding identity is PR #3 below; final identity is the architect merge commit recorded at post-merge finalization)
+- Implementation head: `3026b203b7987356c74a1eea59fbdeba8ddd647f` (branch head under architect review — the exact PR head cited in the review finding; CI-green against this exact SHA: Actions run 33281564138, all three jobs and every step success)
+- Final branch head: the evidence-binding remediation commit that carries this edit (docs-only). A commit cannot contain its own SHA, so that commit's full identity is bound in the two records outside git history — the PR body and the remediation comment on PR #3 — both citing its full SHA (see "Remediation" below)
+- Stable binding identity: PR #3 below; final identity: the architect merge commit recorded at post-merge finalization
 - Changed surfaces:
   - `src/platform/` — ports (config, db, redis, object-store, clock, crypto, secret-store) + migrations home
   - `src/api/` — transport-only placeholder contract
@@ -35,6 +37,7 @@ WORK-001 owns no frozen requirement IDs directly (substrate/governance Work Orde
 Commands run with Bun 1.3.4 (the CI-pinned version) on the branch head:
 
 - CI (GitHub Actions, run 33281490675 on `17a3ce0`, `pull_request` event): all three jobs green — `governance` (governance-check.py), `toolchain-detection` (files present → gate open), `implementation` (Bun 1.3.4 setup, `bun install --frozen-lockfile`, typecheck, lint, architecture tests, unit tests, integration tests — every step success). This is the first green workflow run in the repository since the `implementation` job was introduced.
+- CI (GitHub Actions, run 33281564138 on implementation head `3026b203b7987356c74a1eea59fbdeba8ddd647f`, `pull_request` event): all three jobs green — `governance`, `toolchain-detection`, `implementation` — every step success (Bun 1.3.4 setup, frozen install, typecheck, lint, architecture tests, unit tests, integration tests). This run proves the full gate against the exact implementation head bound above.
 - Governance check: `python3 scripts/governance-check.py` → `Governance OK: 20 Work Orders, 45 requirements, frontier=[]` (exit 0)
 - Deterministic install: `bun install --frozen-lockfile` → no changes, 53 installs across 102 packages (exit 0)
 - Typecheck: `bun run typecheck` → exit 0 (TypeScript strict + noUncheckedIndexedAccess)
@@ -66,9 +69,18 @@ Recorded in `spec/development-state/checkpoint-state.json` as worker-recorded ou
 - The pre-existing CI defect is fixed in this PR (see Changed surfaces). Every workflow run between PR #1's merge and this PR failed at workflow composition with zero jobs, so no CI check actually executed against `main` in that window — worth an architect finding for the merged-but-broken window.
 - `bun.lock` was generated with Bun 1.3.4 exactly (the version CI pins); `--frozen-lockfile` verified.
 
+## Remediation — evidence binding (architect finding, 2026-08-30)
+
+Architect review of PR #3 found the evidence identity stale while implementation and CI were green: the PR body cited `697fb05` and this file cited `17a3ce0`, while the actual PR head was `3026b203b7987356c74a1eea59fbdeba8ddd647f`. Remediation (this commit; docs-only — no code, no architecture, no scope change):
+
+- This file binds the implementation identity to the exact full head SHA `3026b203b7987356c74a1eea59fbdeba8ddd647f` (Implementation section above) and records the CI proof for that exact head (run 33281564138, Verification section above).
+- The PR body cites both the implementation head `3026b203b7987356c74a1eea59fbdeba8ddd647f` and this remediation commit's full SHA as the final branch head.
+- Governance check rerun on this remediation tree: `python3 scripts/governance-check.py` → `Governance OK: 20 Work Orders, 45 requirements, frontier=[]` (exit 0); rerun again after commit and push, with CI executing it on the pushed head.
+- Self-reference constraint, documented rather than hidden: a git commit cannot contain its own SHA. This remediation commit is therefore the one identity in the binding chain that cannot be cited inside its own tree; it is bound by the PR body and the remediation comment on PR #3 (records outside git history), both citing its full SHA. Every other cited SHA in this file is exact and current as of this commit.
+
 ## PR / merge
 
 - PR number: 3 (https://github.com/pectoraux/Zeck/pull/3)
-- Architect review verdict: pending
+- Architect review verdict: pending (finding 2026-08-30 on evidence binding remediated — see Remediation above; technical review of implementation/CI already green)
 - Merge commit: pending (architect merge authority; worker does not merge its own PR)
 - Post-merge finalization revision: pending
