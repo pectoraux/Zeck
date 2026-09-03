@@ -67,18 +67,16 @@ const CSS = `
   --text: #f5f5f5;
   --muted: #9a9a9a;
   --line: #2a2a2a;
-  --accent: #f5f5f5;
   --success: #65d48a;
   --danger: #ff7171;
   --warning: #f4c66d;
   --shadow: 0 18px 60px rgba(0,0,0,.22);
 }
 @media (prefers-color-scheme: light) {
-  :root { --bg:#f7f7f5; --surface:#fff; --surface-2:#f1f1ef; --surface-3:#e9e9e6; --text:#111; --muted:#737373; --line:#deded8; --accent:#111; --shadow:0 16px 50px rgba(0,0,0,.08); }
+  :root { --bg:#f7f7f5; --surface:#fff; --surface-2:#f1f1ef; --surface-3:#e9e9e6; --text:#111; --muted:#737373; --line:#deded8; --success:#17843b; --danger:#c62828; --warning:#936d00; --shadow:0 16px 50px rgba(0,0,0,.08); }
 }
 * { box-sizing:border-box; }
-html { min-height:100%; }
-body { margin:0; min-height:100%; background:var(--bg); color:var(--text); font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.5; }
+body { margin:0; min-height:100vh; background:var(--bg); color:var(--text); font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.5; }
 a { color:inherit; text-decoration:none; }
 button,input,textarea,select { font:inherit; }
 button { cursor:pointer; }
@@ -91,7 +89,7 @@ button { cursor:pointer; }
 .nav a { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:10px; color:var(--muted); font-size:14px; }
 .nav a:hover,.nav a[aria-current="page"] { background:var(--surface-2); color:var(--text); }
 .main { min-width:0; }
-.topbar { height:68px; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 32px; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10; background:color-mix(in srgb,var(--bg) 88%,transparent); backdrop-filter:blur(18px); }
+.topbar { height:68px; display:flex; align-items:center; gap:12px; padding:0 32px; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10; background:color-mix(in srgb,var(--bg) 88%,transparent); backdrop-filter:blur(18px); }
 .command { flex:1; max-width:560px; position:relative; }
 .command input { width:100%; border:1px solid var(--line); background:var(--surface); color:var(--text); border-radius:12px; padding:10px 14px; outline:none; }
 .command input:focus { border-color:#666; box-shadow:0 0 0 3px color-mix(in srgb,var(--text) 9%,transparent); }
@@ -161,7 +159,7 @@ summary { cursor:pointer; font-weight:600; }
 .field textarea { min-height:110px; resize:vertical; }
 .empty { padding:38px; text-align:center; color:var(--muted); }
 .mobile-nav { display:none; }
-@media (max-width: 980px) { .shell { grid-template-columns:72px minmax(0,1fr); } .brand { font-size:13px; padding-inline:8px; } .nav-label { display:none; } .nav a { justify-content:center; font-size:0; } .nav a::before { content:"•"; font-size:16px; } .hero { grid-template-columns:1fr; } }
+@media (max-width: 980px) { .shell { grid-template-columns:72px minmax(0,1fr); } .brand { font-size:13px; } .nav-label { display:none; } .nav a { justify-content:center; font-size:0; } .nav a::before { content:"•"; font-size:16px; } .hero { grid-template-columns:1fr; } }
 @media (max-width: 720px) { .shell { display:block; } .sidebar { display:none; } .topbar { padding:0 16px; height:62px; } .content { padding:28px 16px 60px; } .grid-3,.grid-2,.form-grid { grid-template-columns:1fr; } .hero-card { padding:20px; min-height:0; } .detail-header { flex-direction:column; } .mobile-nav { position:sticky; bottom:0; z-index:20; display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--line); background:color-mix(in srgb,var(--surface) 92%,transparent); backdrop-filter:blur(18px); } .mobile-nav a { padding:12px 6px; text-align:center; color:var(--muted); font-size:11px; } h1 { font-size:38px; } }
 `;
 
@@ -204,113 +202,24 @@ function navLink(href: string, label: string, current: string): string {
 }
 
 function layout(title: string, body: string, currentPath: string): string {
-  return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${esc(title)} · Zeck</title>
-<style>${CSS}</style>
-</head>
-<body>
-<div class="shell">
-<aside class="sidebar">
-  <div class="brand">ZECK <span>execution workspace</span></div>
-  <nav class="nav">
-    <div class="nav-group"><div class="nav-label">Workspace</div>${navLink("/home", "Home", currentPath)}</div>
-    <div class="nav-group"><div class="nav-label">Build</div>${navLink("/build", "Build", currentPath)}${navLink("/agents", "Agents", currentPath)}${navLink("/workloads", "Workloads", currentPath)}${navLink("/deployments", "Deployments", currentPath)}</div>
-    <div class="nav-group"><div class="nav-label">Runs</div>${navLink("/runs/active", "Active", currentPath)}${navLink("/runs/history", "History", currentPath)}${navLink("/runs/scheduled", "Scheduled", currentPath)}</div>
-    <div class="nav-group"><div class="nav-label">Assets</div>${navLink("/assets/artifacts", "Artifacts", currentPath)}${navLink("/assets/competences", "Competences", currentPath)}${navLink("/connections", "Connections", currentPath)}</div>
-    <div class="nav-group"><div class="nav-label">Improve</div>${navLink("/improve/insights", "Insights", currentPath)}${navLink("/improve/evaluations", "Evaluations", currentPath)}</div>
-    <div class="nav-group"><div class="nav-label">Admin</div>${navLink("/admin/policies", "Policies", currentPath)}${navLink("/admin/budgets", "Budgets", currentPath)}${navLink("/admin/audit", "Audit", currentPath)}</div>
-  </nav>
-</aside>
-<main class="main">
-  <header class="topbar">
-    <div class="command"><input data-command aria-label="Search Zeck" placeholder="Search or run a command…"><div class="command-results" data-command-results></div></div>
-    <span class="kbd">⌘K</span>
-  </header>
-  <div class="content">${body}</div>
-</main>
-</div>
-<nav class="mobile-nav">${navLink("/home", "Home", currentPath)}${navLink("/runs/active", "Runs", currentPath)}${navLink("/agents", "Agents", currentPath)}${navLink("/build", "Build", currentPath)}</nav>
-<script>${CLIENT_SCRIPT}</script>
-</body>
-</html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(title)} · Zeck</title><style>${CSS}</style></head><body><div class="shell"><aside class="sidebar"><div class="brand">ZECK <span>execution workspace</span></div><nav class="nav"><div class="nav-group"><div class="nav-label">Workspace</div>${navLink("/home", "Home", currentPath)}</div><div class="nav-group"><div class="nav-label">Build</div>${navLink("/build", "Build", currentPath)}${navLink("/agents", "Agents", currentPath)}${navLink("/workloads", "Workloads", currentPath)}${navLink("/deployments", "Deployments", currentPath)}</div><div class="nav-group"><div class="nav-label">Runs</div>${navLink("/runs/active", "Active", currentPath)}${navLink("/runs/history", "History", currentPath)}${navLink("/runs/scheduled", "Scheduled", currentPath)}</div><div class="nav-group"><div class="nav-label">Assets</div>${navLink("/assets/artifacts", "Artifacts", currentPath)}${navLink("/assets/competences", "Competences", currentPath)}${navLink("/connections", "Connections", currentPath)}</div><div class="nav-group"><div class="nav-label">Improve</div>${navLink("/improve/insights", "Insights", currentPath)}${navLink("/improve/evaluations", "Evaluations", currentPath)}</div><div class="nav-group"><div class="nav-label">Admin</div>${navLink("/admin/policies", "Policies", currentPath)}${navLink("/admin/budgets", "Budgets", currentPath)}${navLink("/admin/audit", "Audit", currentPath)}</div></nav></aside><main class="main"><header class="topbar"><div class="command"><input data-command aria-label="Search Zeck" placeholder="Search or run a command…"><div class="command-results" data-command-results></div></div><span class="kbd">⌘K</span></header><div class="content">${body}</div></main></div><nav class="mobile-nav">${navLink("/home", "Home", currentPath)}${navLink("/runs/active", "Runs", currentPath)}${navLink("/agents", "Agents", currentPath)}${navLink("/build", "Build", currentPath)}</nav><script>${CLIENT_SCRIPT}</script></body></html>`;
 }
 
 function renderHome(agents: readonly AgentSummary[], applicationId: string | undefined): string {
-  const agentTiles = agents.slice(0, 3).map((agent) => `
-    <a class="tile" href="/agents/${encodeURIComponent(agent.id)}">
-      <div class="meta"><span class="chip ${statusTone(agent.status)}">${esc(statusLabel(agent.status))}</span><span>${esc(agent.activeVersion ?? "No active version")}</span></div>
-      <div class="tile-title" style="margin-top:9px">${esc(agent.name)}</div>
-      <div class="tile-copy">${esc(agent.description ?? "Reusable governed execution system.")}</div>
-    </a>`).join("");
-  return `
-  <section class="hero">
-    <div class="card hero-card">
-      <div>
-        <div class="eyebrow">Execution workspace</div>
-        <h1>What would you like Zeck to accomplish?</h1>
-        <p class="lede">Describe an outcome. Zeck handles planning, routing, tools, compute and verification through the governed execution path.</p>
-      </div>
-      <form class="prompt" data-execution-form method="post" action="/executions">
-        <textarea name="task" data-task aria-label="Describe what you want Zeck to accomplish" placeholder="Analyze these contracts and flag termination risk…"></textarea>
-        <div class="form-grid" style="margin-top:10px">
-          <div class="field"><label for="application">Application</label><input id="application" data-app name="applicationId" value="${esc(applicationId ?? "")}" placeholder="Defaults from ZECK_APPLICATION_ID"></div>
-          <div class="field"><label for="maxCost">Cost limit (micro-USD, optional)</label><input id="maxCost" name="maxCostMicroUsd" inputmode="numeric" placeholder="10000000"></div>
-        </div>
-        <div class="actions"><button class="primary" type="submit">Run with Zeck</button><a class="secondary" href="/build">Explore Build</a></div>
-      </form>
-    </div>
-    <div class="stack">
-      <div class="card pad"><div class="eyebrow">Attention</div><div style="margin-top:8px;font-size:20px;font-weight:650">Your decisions stay visible.</div><p class="tile-copy" style="margin-top:8px">Approvals, blocked actions and unresolved execution choices belong here rather than in a noisy notification stream.</p></div>
-      <div class="card pad"><div class="eyebrow">Trust</div><div style="margin-top:8px;font-size:20px;font-weight:650">Evidence is part of the result.</div><p class="tile-copy" style="margin-top:8px">Completed work exposes its verification evidence, provenance and execution history.</p></div>
-    </div>
-  </section>
-
-  <section class="section"><div class="section-head"><div><h2>Build something reusable</h2><div class="sub">Start with purpose, not infrastructure.</div></div></div>
-    <div class="grid-3">
-      <a class="tile" href="/build"><div class="eyebrow">Build</div><div class="tile-title" style="margin-top:7px">An agent</div><div class="tile-copy">Describe a role, guardrails and approvals. Refine the proposed design before exposing internals.</div></a>
-      <a class="tile" href="/workloads"><div class="eyebrow">Compute</div><div class="tile-title" style="margin-top:7px">A workload</div><div class="tile-copy">Training, batch processing and specialized compute remain governed executions.</div></a>
-      <a class="tile" href="/deployments"><div class="eyebrow">Operate</div><div class="tile-title" style="margin-top:7px">A deployment</div><div class="tile-copy">Make a reusable system continuously available without confusing it with a single run.</div></a>
-    </div>
-  </section>
-
-  <section class="section"><div class="section-head"><div><h2>Agents</h2><div class="sub">Reusable execution systems already connected to the platform.</div></div><a class="text-btn" href="/agents">View all</a></div>
-    ${agentTiles === "" ? '<div class="card empty">No agents are registered yet.</div>' : `<div class="grid-3">${agentTiles}</div>`}
-  </section>
-  `;
+  const agentTiles = agents.slice(0, 3).map((agent) => `<a class="tile" href="/agents/${encodeURIComponent(agent.id)}"><div class="meta"><span class="chip ${statusTone(agent.status)}">${esc(statusLabel(agent.status))}</span><span>${esc(agent.activeVersion ?? "No active version")}</span></div><div class="tile-title" style="margin-top:9px">${esc(agent.name)}</div><div class="tile-copy">${esc(agent.description ?? "Reusable governed execution system.")}</div></a>`).join("");
+  return `<section class="hero"><div class="card hero-card"><div><div class="eyebrow">Execution workspace</div><h1>What would you like Zeck to accomplish?</h1><p class="lede">Describe an outcome. Zeck handles planning, routing, tools, compute and verification through the governed execution path.</p></div><form class="prompt" data-execution-form method="post" action="/executions"><textarea name="task" data-task aria-label="Describe what you want Zeck to accomplish" placeholder="Analyze these contracts and flag termination risk…"></textarea><div class="form-grid" style="margin-top:10px"><div class="field"><label for="application">Application</label><input id="application" data-app name="applicationId" value="${esc(applicationId ?? "")}" placeholder="Defaults from ZECK_APPLICATION_ID"></div><div class="field"><label for="maxCost">Cost limit (micro-USD, optional)</label><input id="maxCost" name="maxCostMicroUsd" inputmode="numeric" placeholder="10000000"></div></div><div class="actions"><button class="primary" type="submit">Run with Zeck</button><a class="secondary" href="/build">Explore Build</a></div></form></div><div class="stack"><div class="card pad"><div class="eyebrow">Attention</div><div style="margin-top:8px;font-size:20px;font-weight:650">Your decisions stay visible.</div><p class="tile-copy" style="margin-top:8px">Approvals, blocked actions and unresolved execution choices belong here rather than in a noisy notification stream.</p></div><div class="card pad"><div class="eyebrow">Trust</div><div style="margin-top:8px;font-size:20px;font-weight:650">Evidence is part of the result.</div><p class="tile-copy" style="margin-top:8px">Completed work exposes its verification evidence, provenance and execution history.</p></div></div></section><section class="section"><div class="section-head"><div><h2>Build something reusable</h2><div class="sub">Start with purpose, not infrastructure.</div></div></div><div class="grid-3"><a class="tile" href="/build"><div class="eyebrow">Build</div><div class="tile-title" style="margin-top:7px">An agent</div><div class="tile-copy">Describe a role, guardrails and approvals. Refine the proposed design before exposing internals.</div></a><a class="tile" href="/workloads"><div class="eyebrow">Compute</div><div class="tile-title" style="margin-top:7px">A workload</div><div class="tile-copy">Training, batch processing and specialized compute remain governed executions.</div></a><a class="tile" href="/deployments"><div class="eyebrow">Operate</div><div class="tile-title" style="margin-top:7px">A deployment</div><div class="tile-copy">Make a reusable system continuously available without confusing it with a single run.</div></a></div></section><section class="section"><div class="section-head"><div><h2>Agents</h2><div class="sub">Reusable execution systems already connected to the platform.</div></div><a class="text-btn" href="/agents">View all</a></div>${agentTiles === "" ? '<div class="card empty">No agents are registered yet.</div>' : `<div class="grid-3">${agentTiles}</div>`}</section>`;
 }
 
 function renderExecution(execution: Execution, result: ExecutionResult, events: readonly ExecutionEvent[], verification: readonly VerificationResult[]): string {
+  const taskTitleValue = typeof execution.task.title === "string" ? execution.task.title : typeof execution.task.name === "string" ? execution.task.name : "Untitled execution";
   const checksPassed = verification.filter((v) => v.status === "PASS").length;
   const checksTotal = verification.length;
   const routeText = result.route === null ? "Not planned yet" : `${result.route.strategyClass ?? "Governed route"} · ${result.route.modelCalls} model calls`;
   const status = execution.status;
   const warningBlock = result.warnings.length === 0 ? "" : `<div class="notice warning" style="margin-bottom:14px"><b>Warnings</b><div class="stack" style="margin-top:8px">${result.warnings.map((warning) => `<div>${esc(warning)}</div>`).join("")}</div></div>`;
-  const verifyBlock = checksTotal === 0 ? `<div class="card pad"><div class="muted">No verification results have been recorded yet.</div></div>` : `
-    <div class="card pad">
-      <div class="section-head"><div><h2>Verification</h2><div class="sub">Evidence-backed checks returned by the verification authority.</div></div><span class="chip ${checksPassed === checksTotal ? "success" : "warning"}">${checksPassed}/${checksTotal} passed</span></div>
-      <div class="list">${verification.map((v) => `<div class="list-row"><div><div class="tile-title">${esc(v.criterionId)}</div><div class="tile-copy">${esc(v.strategy)} · ${esc(v.evaluator.kind)}:${esc(v.evaluator.id)}</div></div><span class="chip ${statusTone(v.status)}">${esc(v.status)}</span></div>`).join("")}</div>
-    </div>`;
+  const verifyBlock = checksTotal === 0 ? `<div class="card pad"><div class="muted">No verification results have been recorded yet.</div></div>` : `<div class="card pad"><div class="section-head"><div><h2>Verification</h2><div class="sub">Evidence-backed checks returned by the verification authority.</div></div><span class="chip ${checksPassed === checksTotal ? "success" : "warning"}">${checksPassed}/${checksTotal} passed</span></div><div class="list">${verification.map((v) => `<div class="list-row"><div><div class="tile-title">${esc(v.criterionId)}</div><div class="tile-copy">${esc(v.strategy)} · ${esc(v.evaluator.kind)}:${esc(v.evaluator.id)}</div></div><span class="chip ${statusTone(v.status)}">${esc(v.status)}</span></div>`).join("")}</div></div>`;
   const timeline = events.length === 0 ? '<div class="empty">No execution events recorded yet.</div>' : `<div class="timeline">${events.map((event) => `<div class="event"><div class="event-time">${esc(new Date(event.occurredAt).toLocaleTimeString())}</div><div class="dot"></div><div class="event-body"><b>${esc(statusLabel(event.type))}</b><div class="muted small">Event ${esc(event.sequence)}</div></div></div>`).join("")}</div>`;
-
-  return `
-  <div class="detail-header"><div><div class="eyebrow">Execution</div><h1>${esc(String(execution.task.title ?? execution.task.name ?? "Untitled execution"))}</h1><div class="meta"><span class="chip ${statusTone(status)}">${esc(statusLabel(status))}</span><span>${esc(execution.id)}</span><span>Created ${esc(new Date(execution.createdAt).toLocaleString())}</span></div></div></div>
-  <div class="metric-row"><div class="metric"><span class="muted small">Status</span><b>${esc(statusLabel(status))}</b></div><div class="metric"><span class="muted small">Cost</span><b>${microUsdToUsd(result.cost?.totalMicroUsd ?? null)}</b></div><div class="metric"><span class="muted small">Checks</span><b>${checksPassed}/${checksTotal}</b></div><div class="metric"><span class="muted small">Route</span><b>${esc(routeText)}</b></div></div>
-
-  <div class="tabs" style="margin-top:24px"><a class="tab active" href="#result">Result</a><a class="tab" href="#evidence">Evidence</a><a class="tab" href="#activity">Activity</a></div>
-  ${warningBlock}
-  <section id="result" class="section" style="margin-top:16px"><div class="card pad"><div class="section-head"><div><h2>Result</h2><div class="sub">The primary outcome of this execution.</div></div></div>
-    <div class="notice ${status === "COMPLETED" ? "success" : status === "FAILED" ? "danger" : ""}"><b>${status === "COMPLETED" ? "Execution completed." : status === "FAILED" ? "Zeck could not complete this execution." : "Execution is still in progress."}</b><div class="tile-copy" style="margin-top:7px">The dashboard shows platform facts only; correctness is established by the verification evidence below.</div></div>
-    <div class="section" style="margin-top:18px"><details open><summary>How Zeck did it</summary><div class="grid-2" style="margin-top:12px"><div class="tile"><div class="eyebrow">Task</div><div class="tile-title" style="margin-top:7px">Outcome intent</div><div class="tile-copy">${esc(JSON.stringify(execution.task))}</div></div><div class="tile"><div class="eyebrow">Route</div><div class="tile-title" style="margin-top:7px">${esc(routeText)}</div><div class="tile-copy">Provider/model details remain secondary implementation facts.</div></div><div class="tile"><div class="eyebrow">Compute</div><div class="tile-title" style="margin-top:7px">Governed environment</div><div class="tile-copy">The execution selected its compute path through Zeck's policy and capability authorities.</div></div><div class="tile"><div class="eyebrow">Cost</div><div class="tile-title" style="margin-top:7px">${microUsdToUsd(result.cost?.totalMicroUsd ?? null)}</div><div class="tile-copy">Actual settled usage when available.</div></div></div>${result.route !== null ? `<details style="margin-top:12px"><summary>Advanced route detail</summary><div class="meta" style="margin-top:10px"><span>Provider: ${esc(result.route.provider ?? "deterministic")}</span><span>Model: ${esc(result.route.model ?? "—")}</span><span>Strategy: ${esc(result.route.strategyClass ?? "—")}</span><span>Model calls: ${esc(result.route.modelCalls)}</span></div></details>` : ""}</details></div>
-    <div class="section"><div class="section-head"><div><h2>Artifacts</h2><div class="sub">Outputs produced by the execution.</div></div></div>${result.outputArtifacts.length === 0 ? '<div class="empty">No output artifacts recorded.</div>' : `<div class="list">${result.outputArtifacts.map((artifact) => `<a class="list-row" href="/assets/artifacts/${encodeURIComponent(artifact.id)}"><div><div class="tile-title">${esc(artifact.id)}</div><div class="tile-copy">Created ${esc(new Date(artifact.createdAt).toLocaleString())}</div></div><span class="muted small">${esc(artifact.digest ?? "No digest")}</span></a>`).join("")}</div>`}</div>
-  </div></section>
-
-  <section id="evidence" class="section">${verifyBlock}</section>
-  <section id="activity" class="section"><div class="card pad"><div class="section-head"><div><h2>Activity</h2><div class="sub">Chronological execution history.</div></div></div>${timeline}</div></section>
-  ${status !== "COMPLETED" && status !== "FAILED" && status !== "CANCELLED" && status !== "EXPIRED" ? `<form method="post" action="/executions/${encodeURIComponent(execution.id)}/cancel" class="section"><button class="secondary" type="submit">Cancel execution</button></form>` : ""}
-  `;
+  return `<div class="detail-header"><div><div class="eyebrow">Execution</div><h1>${esc(taskTitleValue)}</h1><div class="meta"><span class="chip ${statusTone(status)}">${esc(statusLabel(status))}</span><span>${esc(execution.id)}</span><span>Created ${esc(new Date(execution.createdAt).toLocaleString())}</span></div></div></div><div class="metric-row"><div class="metric"><span class="muted small">Status</span><b>${esc(statusLabel(status))}</b></div><div class="metric"><span class="muted small">Cost</span><b>${microUsdToUsd(result.cost?.totalMicroUsd ?? null)}</b></div><div class="metric"><span class="muted small">Checks</span><b>${checksPassed}/${checksTotal}</b></div><div class="metric"><span class="muted small">Route</span><b>${esc(routeText)}</b></div></div><div class="tabs" style="margin-top:24px"><a class="tab active" href="#result">Result</a><a class="tab" href="#evidence">Evidence</a><a class="tab" href="#activity">Activity</a></div>${warningBlock}<section id="result" class="section" style="margin-top:16px"><div class="card pad"><div class="section-head"><div><h2>Result</h2><div class="sub">The primary outcome of this execution.</div></div></div><div class="notice ${status === "COMPLETED" ? "success" : status === "FAILED" ? "danger" : ""}"><b>${status === "COMPLETED" ? "Execution completed." : status === "FAILED" ? "Zeck could not complete this execution." : "Execution is still in progress."}</b><div class="tile-copy" style="margin-top:7px">The dashboard shows platform facts only; correctness is established by the verification evidence below.</div></div><div class="section" style="margin-top:18px"><details open><summary>How Zeck did it</summary><div class="grid-2" style="margin-top:12px"><div class="tile"><div class="eyebrow">Task</div><div class="tile-title" style="margin-top:7px">Outcome intent</div><div class="tile-copy">${esc(JSON.stringify(execution.task))}</div></div><div class="tile"><div class="eyebrow">Route</div><div class="tile-title" style="margin-top:7px">${esc(routeText)}</div><div class="tile-copy">Provider/model details remain secondary implementation facts.</div></div><div class="tile"><div class="eyebrow">Compute</div><div class="tile-title" style="margin-top:7px">Governed environment</div><div class="tile-copy">The execution selected its compute path through Zeck's policy and capability authorities.</div></div><div class="tile"><div class="eyebrow">Cost</div><div class="tile-title" style="margin-top:7px">${microUsdToUsd(result.cost?.totalMicroUsd ?? null)}</div><div class="tile-copy">Actual settled usage when available.</div></div></div>${result.route !== null ? `<details style="margin-top:12px"><summary>Advanced route detail</summary><div class="meta" style="margin-top:10px"><span>Provider: ${esc(result.route.provider ?? "deterministic")}</span><span>Model: ${esc(result.route.model ?? "—")}</span><span>Strategy: ${esc(result.route.strategyClass ?? "—")}</span><span>Model calls: ${esc(result.route.modelCalls)}</span></div></details>` : ""}</details></div><div class="section"><div class="section-head"><div><h2>Artifacts</h2><div class="sub">Outputs produced by the execution.</div></div></div>${result.outputArtifacts.length === 0 ? '<div class="empty">No output artifacts recorded.</div>' : `<div class="list">${result.outputArtifacts.map((artifact) => `<a class="list-row" href="/assets/artifacts/${encodeURIComponent(artifact.id)}"><div><div class="tile-title">${esc(artifact.id)}</div><div class="tile-copy">Created ${esc(new Date(artifact.createdAt).toLocaleString())}</div></div><span class="muted small">${esc(artifact.digest ?? "No digest")}</span></a>`).join("")}</div>`}</div></div></section><section id="evidence" class="section">${verifyBlock}</section><section id="activity" class="section"><div class="card pad"><div class="section-head"><div><h2>Activity</h2><div class="sub">Chronological execution history.</div></div></div>${timeline}</div></section>${status !== "COMPLETED" && status !== "FAILED" && status !== "CANCELLED" && status !== "EXPIRED" ? `<form method="post" action="/executions/${encodeURIComponent(execution.id)}/cancel" class="section"><button class="secondary" type="submit">Cancel execution</button></form>` : ""}`;
 }
 
 function renderAgents(agents: readonly AgentSummary[]): string {
@@ -347,73 +256,33 @@ export function createDashboard(options: DashboardOptions): {
   const server = createServer(async (request, response) => {
     const url = new URL(request.url ?? "/", "http://dashboard.local");
     const path = url.pathname;
-    const html = (status: number, title: string, body: string) => {
-      response.writeHead(status, { "content-type": "text/html; charset=utf-8" });
-      response.end(layout(title, body, path));
-    };
+    const html = (status: number, title: string, body: string) => { response.writeHead(status, { "content-type": "text/html; charset=utf-8" }); response.end(layout(title, body, path)); };
     try {
-      if (request.method === "GET" && (path === "/" || path === "/home")) {
-        html(200, "Home", renderHome(await client.listAgents(), applicationId));
-        return;
-      }
+      if (request.method === "GET" && (path === "/" || path === "/home")) { html(200, "Home", renderHome(await client.listAgents(), applicationId)); return; }
       if (request.method === "POST" && path === "/executions") {
         const form = await readBody(request);
         const taskText = form.get("task")?.trim() ?? "";
         const application = form.get("applicationId")?.trim() || applicationId || "";
-        if (taskText === "" || application === "") {
-          html(400, "Start an execution", renderHome(await client.listAgents(), applicationId) + `<div class="notice danger" style="margin-top:16px">Add a task and an application before running.</div>`);
-          return;
-        }
+        if (taskText === "" || application === "") { html(400, "Start an execution", renderHome(await client.listAgents(), applicationId) + `<div class="notice danger" style="margin-top:16px">Add a task and an application before running.</div>`); return; }
         const maxCost = form.get("maxCostMicroUsd")?.trim();
-        const requestBody: ExecutionRequest = {
-          applicationId: application,
-          task: { title: taskText, description: taskText },
-          ...(maxCost === undefined || maxCost === "" ? {} : { constraints: { maxCostMicroUsd: maxCost } }),
-        };
+        const requestBody: ExecutionRequest = { applicationId: application, task: { title: taskText, description: taskText }, ...(maxCost === undefined || maxCost === "" ? {} : { constraints: { maxCostMicroUsd: maxCost } }) };
         const created = await client.createExecution(requestBody);
-        response.writeHead(303, { location: `/executions/${encodeURIComponent(created.receipt.executionId)}` });
-        response.end();
-        return;
+        response.writeHead(303, { location: `/executions/${encodeURIComponent(created.receipt.executionId)}` }); response.end(); return;
       }
       const executionMatch = /^\/executions\/([^/]+)$/.exec(path);
       if (request.method === "GET" && executionMatch !== null) {
         const id = decodeURIComponent(executionMatch[1] ?? "");
         const [execution, result, events, verification] = await Promise.all([client.getExecution(id), client.getResult(id), client.listEvents(id), client.listVerification(id)]);
-        html(200, "Execution", renderExecution(execution, result, events, verification));
-        return;
+        html(200, "Execution", renderExecution(execution, result, events, verification)); return;
       }
       const cancelMatch = /^\/executions\/([^/]+)\/cancel$/.exec(path);
-      if (request.method === "POST" && cancelMatch !== null) {
-        await readBody(request);
-        const receipt = await client.cancelExecution(decodeURIComponent(cancelMatch[1] ?? ""));
-        response.writeHead(303, { location: `/executions/${encodeURIComponent(receipt.executionId)}` });
-        response.end();
-        return;
-      }
-      if (request.method === "GET" && path === "/agents") {
-        html(200, "Agents", renderAgents(await client.listAgents()));
-        return;
-      }
+      if (request.method === "POST" && cancelMatch !== null) { await readBody(request); const receipt = await client.cancelExecution(decodeURIComponent(cancelMatch[1] ?? "")); response.writeHead(303, { location: `/executions/${encodeURIComponent(receipt.executionId)}` }); response.end(); return; }
+      if (request.method === "GET" && path === "/agents") { html(200, "Agents", renderAgents(await client.listAgents())); return; }
       const agentMatch = /^\/agents\/([^/]+)$/.exec(path);
-      if (request.method === "GET" && agentMatch !== null) {
-        html(200, "Agent", renderAgentStatus(await client.getAgentStatus(decodeURIComponent(agentMatch[1] ?? ""))));
-        return;
-      }
-      if (request.method === "GET" && path === "/build") {
-        html(200, "Build", renderBuild());
-        return;
-      }
-      if (request.method === "GET" && ["/workloads", "/deployments", "/runs", "/runs/active", "/runs/history", "/runs/scheduled", "/assets/artifacts", "/assets/competences", "/connections", "/improve/insights", "/improve/evaluations", "/admin/policies", "/admin/budgets", "/admin/audit"].includes(path)) {
-        html(200, "Zeck", renderPlaceholder(statusLabel(path.split("/").filter(Boolean).slice(-1)[0] ?? "Workspace"), "The accepted UX contract defines this surface; it will be connected as the corresponding public API projection becomes available.", path));
-        return;
-      }
-      if (request.method === "GET" && path === "/styles.css") {
-        response.writeHead(200, { "content-type": "text/css; charset=utf-8", "cache-control": "no-store" });
-        response.end(CSS);
-        return;
-      }
-      response.writeHead(404, { "content-type": "text/html; charset=utf-8" });
-      response.end(layout("Not found", `<div class="eyebrow">Zeck</div><h1>That page does not exist.</h1><p class="lede">Return to the workspace or use search.</p><div class="actions"><a class="primary" href="/home">Go home</a></div>`, path));
+      if (request.method === "GET" && agentMatch !== null) { html(200, "Agent", renderAgentStatus(await client.getAgentStatus(decodeURIComponent(agentMatch[1] ?? "")))); return; }
+      if (request.method === "GET" && path === "/build") { html(200, "Build", renderBuild()); return; }
+      if (request.method === "GET" && ["/workloads","/deployments","/runs","/runs/active","/runs/history","/runs/scheduled","/assets/artifacts","/assets/competences","/connections","/improve/insights","/improve/evaluations","/admin/policies","/admin/budgets","/admin/audit"].includes(path)) { html(200, "Zeck", renderPlaceholder(statusLabel(path.split("/").filter(Boolean).slice(-1)[0] ?? "Workspace"), "The accepted UX contract defines this surface; it will be connected as the corresponding public API projection becomes available.", path)); return; }
+      response.writeHead(404, { "content-type": "text/html; charset=utf-8" }); response.end(layout("Not found", `<div class="eyebrow">Zeck</div><h1>That page does not exist.</h1><p class="lede">Return to the workspace or use search.</p><div class="actions"><a class="primary" href="/home">Go home</a></div>`, path));
     } catch (error) {
       const message = error instanceof ZeckApiError ? error.message : error instanceof Error ? error.message : "Unexpected failure";
       html(502, "Error", `<div class="eyebrow">Zeck</div><h1>We couldn't load that right now.</h1><p class="lede">${esc(message)}</p><div class="actions"><a class="primary" href="/home">Return home</a></div>`);
@@ -424,15 +293,7 @@ export function createDashboard(options: DashboardOptions): {
 
 if (process.argv[1]?.endsWith("apps/dashboard/index.ts") === true) {
   const token = process.env.ZECK_TOKEN;
-  if (token === undefined || token.length === 0) {
-    console.error("error: ZECK_TOKEN is not set");
-    process.exit(1);
-  }
-  const { server, port } = createDashboard({
-    apiUrl: process.env.ZECK_API_URL ?? "http://127.0.0.1:3000",
-    token,
-    applicationId: process.env.ZECK_APPLICATION_ID,
-    port: Number(process.env.DASHBOARD_PORT ?? 4545),
-  });
+  if (token === undefined || token.length === 0) { console.error("error: ZECK_TOKEN is not set"); process.exit(1); }
+  const { server, port } = createDashboard({ apiUrl: process.env.ZECK_API_URL ?? "http://127.0.0.1:3000", token, applicationId: process.env.ZECK_APPLICATION_ID, port: Number(process.env.DASHBOARD_PORT ?? 4545) });
   server.listen(port, () => console.log(`zeck dashboard listening on http://127.0.0.1:${port}`));
 }
