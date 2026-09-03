@@ -136,8 +136,8 @@ Media queries at 1025px (persistent sidebar grid `nav header/nav main/nav footer
 
 ## Limitations (honest)
 
-- No real-browser automation in CI: the responsive, keyboard and enhancement-script behaviors are verified at the markup/stylesheet/asset level (real HTTP responses, real CSS rules, the served script's source), not through a driven browser; no visual regression harness exists.
-- The client script's Cmd/Ctrl+K, appearance toggle and roving focus are verified at the source/asset level (served with the right content type, contains the documented behaviors) rather than through driven interaction.
+- No real-browser automation in CI: the responsive, keyboard and enhancement-script behaviors are verified at the markup/stylesheet/asset level (real HTTP responses, real CSS rules, the served script's source) in CI; the orchestrator additionally drove a REAL browser out-of-band in the build environment (see the addendum below — environment-verified, the same honesty convention as the local real-PG proofs; CI itself runs no browser). No visual regression harness exists in CI.
+- The client script's Cmd/Ctrl+K, appearance toggle and roving focus are verified at the source/asset level (served with the right content type, contains the documented behaviors); the orchestrator's driven-browser record additionally exercised Cmd/Ctrl+K and the appearance/dark behavior live (addendum below).
 - No real multi-user/session matrix: the journeys drive one cookie jar; the 401/403 permission-denied page is exercised through the public error shape but not through a real authenticated multi-tenant API.
 - English-only copy (the house language rule); no i18n.
 - The recents cookie scopes Home's attention/active/recent to ONE browser (disclosed design, not a platform listing).
@@ -146,5 +146,20 @@ Media queries at 1025px (persistent sidebar grid `nav header/nav main/nav footer
 ## No-merge statement
 
 The implementer does not push, does not open the PR, does not merge. The Architect (repository owner) is the merge authority; the orchestrator performs the independent verification and opens exactly one PR. Zero spec/, src/, sdk/, cli/, scripts/ or root-config files were touched by this work item.
+
+## Addendum — the orchestrator's driven-browser verification (out-of-band, environment-executed)
+
+After the complete gate, the orchestrator drove the REAL dashboard (the exact final-head server, booted against a harness fake-API world implementing the public wire surface — the same honest test-double family as the journeys suite) through the primary journeys in a real Chromium browser:
+
+- **The first-execution journey end-to-end**: Home ("Zeck — Home") → fill the outcome textarea + application id → "Plan this execution" → the review page (URL carrying the idempotency key, outcome and applicationId) → "Execute" → landed on `/runs/00000000-0000-7000-8000-0001` — the created execution view. Zero browser console errors.
+- **The execution work surface**: the "How Zeck did it" disclosure opened by click; the Evidence tab navigated to `?tab=evidence`; the Activity tab rendered the chronological timeline; the header showed the title, the Completed badge, duration, `$4.18` and the checks chip.
+- **Keyboard**: Tab from the page start focuses the skip link first ("Skip to main content"), then the brand link — the DOM focus order is correct; **Ctrl+K moved focus to `#command-input`** (the enhancement script works in a real browser).
+- **Responsive**: tablet 768px rendered the collapsed top nav; mobile 390px rendered the single-column layout with the compact horizontal row of collapsible nav groups (Build/Runs/Assets/Improve/Admin) and the outcome textarea; the mobile nav group opened by click; the run detail rendered single-column at 390px. (Verified again by visual inspection of the captured screenshots.)
+- **Dark mode** (emulated `prefers-color-scheme: dark`): dark surfaces with readable text, all sections and badges visible.
+- **The waiting → cancel flow**: the WAITING_USER decision surface rendered → "Cancel this execution" → the confirmation page at `?action=cancel` → "Cancel execution" POST → redirected back to `/runs/:id` showing Cancelled. The full governed flow in a real browser.
+- **The command surface**: `/command?q=agents` rendered the results page (links only).
+- **15 screenshots** were captured as artifacts (home, review, result, why-open, evidence, activity, tablet, mobile, mobile-run, mobile-nav-open, dark, waiting, cancel-confirm, cancelled, command) — recorded in the PR body; their contents were additionally machine-verified by a vision model against the expected structures (sidebar + textarea + sections; header facts + tabs + disclosure; single-column mobile; readable dark mode).
+
+Honest scope: executed in the build environment against the harness world (not in CI, not against a production API); the browser artifacts and interaction log are orchestrator-side evidence attached to the PR, in the same convention as the local real-PG proofs.
 
 **Final head: this doc's commit (the branch head; the exact SHA is recorded by the orchestrator in the PR body per the house two-phase binding). The last code commit is `6095a6d`; the complete gate ran green twice at the final head (both runs recorded above).**
