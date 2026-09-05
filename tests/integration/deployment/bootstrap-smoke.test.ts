@@ -103,8 +103,16 @@ const LOCAL_ENV = {
 describe.skipIf(PG_ADMIN_URL.length === 0)(
   "idempotent local bootstrap over real PostgreSQL (AC8)",
   () => {
-    test("bootstrap converges the disposable local resources", () => {
+    test("bootstrap converges the disposable local resources (from the pristine state)", async () => {
       const root = dataRoot();
+      // Establish the pristine state first (hermetic against prior runs
+      // of this suite or the tools against the shared test server):
+      // teardown is the computed-name-only, idempotent inverse.
+      runTool("teardown.ts", ["--environment", "local"], {
+        ...LOCAL_ENV,
+        ZECK_LOCAL_DATA_ROOT: root,
+      });
+      expect(await databaseExists("zeck_local")).toBe(false);
       const first = runTool("bootstrap.ts", ["--environment", "local"], {
         ...LOCAL_ENV,
         ZECK_LOCAL_DATA_ROOT: root,
