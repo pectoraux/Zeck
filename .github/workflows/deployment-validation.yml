@@ -63,7 +63,7 @@ jobs:
           bun run deploy:bootstrap -- --environment local > /tmp/bootstrap-2.json
           # The second run must report the database as already converged.
           grep -q "already-present (converged)" /tmp/bootstrap-2.json
-      - name: Smoke: readiness + exact-revision deployment identity
+      - name: "Smoke: readiness + exact-revision deployment identity"
         run: bun run deploy:smoke -- --environment local
       - name: Emit deployment identity (deterministic)
         run: |
