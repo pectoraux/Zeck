@@ -2,7 +2,7 @@
 
 Work Order: `WORK-042` (spec/work-orders/WORK-042.md) · Assurance: **HIGH_ASSURANCE** · Requirement IDs: N/A (deployment architecture foundation; acceptance governed by D1.0 and the checkpoint contracts below) · Governing architecture: Deployment & Runtime Architecture **D1.0**, subordinate to frozen v1.0.
 
-Exact dispatch base: `6bbb76e17ec17de41141db6ef9d41a641ea5cdb4` (verified present; the worker branch was created at exactly that SHA — 0 commits ahead / 0 behind at start; main had already advanced to `dea4d08` through post-dispatch governance-automation commits, which are NOT part of this branch). Branch: `work/WORK-042-deployment-infrastructure-foundation` · **Final head: this doc's commit** (the house two-phase binding; the last code commit, `de6858b`, precedes it) · Zero merge commits; the merge-base is `6bbb76e…` exactly.
+Exact dispatch base: `6bbb76e17ec17de41141db6ef9d41a641ea5cdb4` (verified present; the worker branch was created at exactly that SHA — 0 commits ahead / 0 behind at start; main had already advanced to `dea4d08` through post-dispatch governance-automation commits, which are NOT part of this branch). Branch: `work/WORK-042-deployment-infrastructure-foundation` · **Final head: this doc's commit** (the house two-phase binding; the last code commit, `5811afc` — the CI step-name quoting fix — precedes it; before that: `de6858b`, `8d3898a`) · Zero merge commits; the merge-base is `6bbb76e…` exactly.
 
 ## Baseline gate at the exact frozen base (readiness checkpoint — BEFORE implementation)
 
@@ -104,7 +104,7 @@ Sixteen mutation proofs in `tests/discrimination/deployment-foundation.discrimin
 - `bun run lint` — biome clean (998 files, including `deploy/**`).
 - `bun run deploy:validate` — valid: 4 environments, 6 providers, 10 resource kinds, 19 variables, 4 secret-reference inventories, 0 problems.
 - Deployment integration suite (real PG): 10/10 — idempotent bootstrap, teardown/recovery, classification-guard refusals, fail-closed smoke, deterministic identity.
-- **Full suite with real PG, run twice consecutively at the exact final head (the release gate): see the PR body for the two recorded runs.** Expected exact result: all tests green EXCEPT the two inherited governance-state failures (the same two, same cause, failing identically at the dispatch base before any change of mine — attribution: the missing WORK-042 dependency-state entry, Architect-owned).
+- **Full suite with real PG, run twice consecutively at the exact final head (the release gate): two consecutive runs at this doc's commit — 292 files / 4271 tests, 4269 passed, 2 failed = exactly the two inherited governance-state failures** (the same two, same cause, failing identically at the dispatch base before any change of mine — attribution: the missing WORK-042 dependency-state entry, Architect-owned). An earlier run additionally showed one transient full-load flake in the pre-existing WORK-027 computer-use concurrency test (17/17 in isolation; module untouched — disclosed).
 
 ## Deployment identity (this revision)
 
@@ -124,3 +124,4 @@ See `deploy/README.md` (the operator path: set `ZECK_ENVIRONMENT`/`ZECK_PG_ADMIN
 2. Provider mutation adapters (Neon project/branch creation, R2 bucket creation, Queues/Workflows/Redis provisioning, Vercel project deployment) are D-02+ roadmap phases by design; D-01 makes the configuration reproducible and the plans/preconditions exact and fail-closed. No provider-account credentials exist in the worker's Composio workspace for those providers (verified; see the readiness section).
 3. Preview teardown and preview/staging/production bootstrap are plan-emitting only in D-01.
 4. The `dependencyReadiness` probe on the API is injected by composition; the production wiring (real probes over the platform model) arrives with the deployment composition root in D-02+ (tests inject probes; the smoke tool is the reference evaluator today).
+5. Correction on submission: the first push of this branch had a YAML parse defect in `deployment-validation.yml` (an unquoted step name containing a colon — GitHub rejected the workflow before any job ran: run 33966490662, zero jobs). Fixed in `5811afc` (the quoted name; both workflow files validated with a YAML parser); the workflow now triggers normally on the PR.
